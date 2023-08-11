@@ -43,24 +43,24 @@
 #       corresponding to the different sections of the field file and 
 #       its field format. Users can retrieve any member by dot notation:
 #
-#           1. header: the header member can be accessed by calling the
-#              'header' attribute, which returns a dictionary that stores
-#              all the properties in the header. All stored contents within 
-#              it can be accessed by the formats listed below:
-#              Example: 1. accessing the whole header:
-#                          f.header 
-#                       2. accessing single property in the header:
-#                          f.header['format']    or
-#                          f.header['N_monomer']
+#           1.header: the header member can be accessed by calling the
+#             'header' attribute, which returns a dictionary that stores
+#             all the properties in the header. All stored contents within 
+#             it can be accessed by the formats listed below:
+#             Example: 1. accessing the whole header:
+#                         f.header 
+#                      2. accessing single property in the header:
+#                         f.header['format']    or
+#                         f.header['N_monomer']
 #
-#           2. data: the data member can be accessed by calling the 'data'
-#              attribute, which returns a list of lists that stores all 
-#              the data of the field. A single row of data can be accessed 
-#              by corresponding row number. Any specific data points can be 
-#              accessed by corresponding two separate square bracket indices.
-#              Example: f.data    or
-#                       f.data[4]    or
-#                       f.data[0][6]
+#           2.data: the data member can be accessed by calling the 'data'
+#             attribute, which returns a list of lists that stores all 
+#             the data of the field. A single row of data can be accessed 
+#             by corresponding row number. Any specific data points can be 
+#             accessed by corresponding two separate square bracket indices.
+#             Example: f.data    or
+#                      f.data[4]    or
+#                      f.data[0][6]
 #
 #       The parser also allows users to modify the properties of the header 
 #       in the preset format. Users have to modify the desired properties 
@@ -71,6 +71,33 @@
 #                f.header['cell_param'] = [2.45]   or
 #                f.header['group_name'] = 'P_1'
 #
+#      Three special functions are built for a Field object to modify the 
+#      data stored within it:
+#
+#      1.addColumn(index, element)
+#        User can add a new column to the data list of the Field object by
+#        calling this method. By passing in two arguments, index, the 
+#        desired position to add the new column, and element, a single 
+#        value for the whole column or a list of values represents the whole 
+#        column, the data list of the Field object can be updated with 
+#        the desired position and values.
+#        Example: f.addColumn(2, 1.2)    or
+#                 f.addColumn(2, [list of values for the whole column])
+#
+#      2.deleteColumn(index)
+#        User can delete an exist column from the data list of the Field 
+#        object by calling this method. By passing in one argument, index, 
+#        the desired position of the column to be deleted, the data list 
+#        of the Field object can be updated without the indicated column.
+#        Example: f.deleteColumn(2)
+#
+#      3.reorder(order)
+#        User can reorder the data list of the Field object with desired 
+#        order by calling this method. By passing in one argument, order,
+#        an integer list that represents the new order of the columns in
+#        the data list, the data list of the Field object can be updated 
+#        with the desired order.
+#        Example: f.reorder([0, 3, 4, 1, 2])
 #
 # Module Contents:
 #
@@ -112,7 +139,19 @@ class Field:
       method to write out the stored Field file to a specific named file
       with the name of the argument filename
    writeOutStirng(self):
-         return the string for writing out
+      return the string for writing out
+   addColumn(self, index, element):
+      method to add a new column to the data list, with two arguments:
+         index, an integer represents desired position to add the new column
+         element, an single value for the whole column or a list of values
+                  represents the whole column that need to be added
+   deleteColumn(self, index):
+      method to delete an exist column from the data list, with one argument:
+         index, an integer represents desired column to be deleted
+   reorder(self, order):
+      method to reorder the columns in the data list, with one argument:
+         order, a list of integer represents the new order of the exist 
+                columns
    '''
 
    def __init__(self, filename):
@@ -226,6 +265,27 @@ class Field:
          out += row + '\n'
 
       return out
+
+   def addColumn(self, index, element):
+      if type(element) is list:
+         for i in range(0, len(self.data)):
+            self.data[i].insert(index, element[i])
+      else:
+         for i in range(0, len(self.data)):
+            self.data[i].insert(index, element)
+
+   def deleteColumn(self, index):
+      for i in range(0, len(self.data)):
+         self.data[i].pop(index)
+
+   def reorder(self, order):
+      newData = []
+      for i in range(0, len(self.data)):
+         d = []
+         for j in range(0,len(order)):
+            d.append(self.data[i][order[j]])
+         newData.append(d)
+      self.data = newData
 
 # End class Field  -------------------------------------------------------
 
